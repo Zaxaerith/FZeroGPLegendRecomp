@@ -1,0 +1,4 @@
+* text=auto
+# Preserve upstream patch context and third-party license text byte-for-byte.
+patches/*.patch whitespace=-trailing-space
+third_party_licenses/*.txt whitespace=-trailing-space,-blank-at-eof

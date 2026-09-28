@@ -1,0 +1,482 @@
+[game]
+name = "F-Zero: GP Legend"
+short_name = "fzero_gp_legend"
+
+[program]
+name = "F-Zero: GP Legend (USA)"
+id = "BFZE"
+load_address = 0x08000000
+size = 0x01000000
+entry_pc = 0x08000000
+speculative_literal_harvest = false
+aot_scan_start = 0x08000000
+aot_scan_end = 0x08400000
+static_resume_all = true
+codegen_shards = 8
+
+[identity]
+sha1 = "977588d9d27b7115e0bb309fb019ae81b9f413ff"
+
+[bios]
+path = "@BIOS_PATH@"
+sha1 = "300c20df6731a33952ded8c436f7f186d25d3492"
+hle = false
+
+[rom]
+path = "@ROM_PATH@"
+sha1 = "977588d9d27b7115e0bb309fb019ae81b9f413ff"
+
+[save]
+type = "sram"
+size = 32768
+path = "@SAVE_PATH@"
+
+[runtime]
+window_title = "F-Zero: GP Legend Recomp"
+
+# Reviewed self-heal proposals (cart PCs only). IWRAM 0x0300xxxx misses are
+# runtime-copied code and need [[code_copy]] evidence, not extra_func.
+# Source: run-verbose-crash.log dispatch-miss PCs during race init.
+
+[[extra_func]]
+addr = 0x0804ADA0
+mode = "thumb"
+name = "race_init_0804ada0"
+note = "Race load state dispatcher"
+
+[[extra_func]]
+addr = 0x0804AE20
+mode = "thumb"
+name = "race_init_0804ae20"
+note = "Race load; crash PC"
+
+[[extra_func]]
+addr = 0x08049438
+mode = "thumb"
+name = "pre_race_08049438"
+note = "Dispatch miss that fell into IWRAM 0x0300819C"
+
+[[extra_func]]
+addr = 0x0803C5E6
+mode = "thumb"
+name = "menu_race_0803c5e6"
+note = "Shared menu/race helper"
+
+[[extra_func]]
+addr = 0x0804F31E
+mode = "thumb"
+name = "race_hud_0804f31e"
+note = "bridged x136"
+
+[[extra_func]]
+addr = 0x080408F8
+mode = "thumb"
+name = "menu_080408f8"
+
+[[extra_func]]
+addr = 0x08040D0A
+mode = "thumb"
+name = "menu_08040d0a"
+
+# Internal entry points of race-init functions (computed jumps / switch cases).
+[[extra_func]]
+addr = 0x0803746C
+mode = "thumb"
+name = "race_0803746c"
+
+[[extra_func]]
+addr = 0x08037470
+mode = "arm"
+name = "race_08037470"
+
+[[extra_func]]
+addr = 0x08037BE2
+mode = "thumb"
+name = "race_08037be2"
+
+[[extra_func]]
+addr = 0x08037BE6
+mode = "thumb"
+name = "race_08037be6"
+
+[[extra_func]]
+addr = 0x08037C04
+mode = "thumb"
+name = "race_08037c04"
+
+[[extra_func]]
+addr = 0x08037C5A
+mode = "thumb"
+name = "race_08037c5a"
+
+[[extra_func]]
+addr = 0x08037C6A
+mode = "thumb"
+name = "race_08037c6a"
+
+[[extra_func]]
+addr = 0x08037C88
+mode = "thumb"
+name = "race_08037c88"
+
+[[extra_func]]
+addr = 0x08037CCC
+mode = "thumb"
+name = "race_08037ccc"
+
+[[extra_func]]
+addr = 0x08037F08
+mode = "thumb"
+name = "race_08037f08"
+
+[[extra_func]]
+addr = 0x08037F14
+mode = "thumb"
+name = "race_08037f14"
+
+[[extra_func]]
+addr = 0x08037F2E
+mode = "thumb"
+name = "race_08037f2e"
+
+[[extra_func]]
+addr = 0x08037F42
+mode = "thumb"
+name = "race_08037f42"
+
+[[extra_func]]
+addr = 0x08037FAA
+mode = "thumb"
+name = "race_08037faa"
+
+[[extra_func]]
+addr = 0x08037FB0
+mode = "thumb"
+name = "race_08037fb0"
+
+[[extra_func]]
+addr = 0x08038004
+mode = "thumb"
+name = "race_08038004"
+
+[[extra_func]]
+addr = 0x08038018
+mode = "thumb"
+name = "race_08038018"
+
+[[extra_func]]
+addr = 0x08038050
+mode = "thumb"
+name = "race_08038050"
+
+[[extra_func]]
+addr = 0x0803805A
+mode = "thumb"
+name = "race_0803805a"
+
+[[extra_func]]
+addr = 0x080389E0
+mode = "thumb"
+name = "race_080389e0"
+
+[[extra_func]]
+addr = 0x080389F6
+mode = "thumb"
+name = "race_080389f6"
+
+[[extra_func]]
+addr = 0x08038B7A
+mode = "thumb"
+name = "race_08038b7a"
+
+[[extra_func]]
+addr = 0x08038B88
+mode = "thumb"
+name = "race_08038b88"
+
+[[extra_func]]
+addr = 0x08038BA4
+mode = "thumb"
+name = "race_08038ba4"
+
+[[extra_func]]
+addr = 0x08038C90
+mode = "thumb"
+name = "race_08038c90"
+
+[[extra_func]]
+addr = 0x08038CD0
+mode = "thumb"
+name = "race_08038cd0"
+
+[[extra_func]]
+addr = 0x08038D16
+mode = "thumb"
+name = "race_08038d16"
+
+[[extra_func]]
+addr = 0x08038D3A
+mode = "thumb"
+name = "race_08038d3a"
+
+[[extra_func]]
+addr = 0x08038D40
+mode = "thumb"
+name = "race_08038d40"
+
+[[extra_func]]
+addr = 0x08038DA0
+mode = "thumb"
+name = "race_08038da0"
+
+[[extra_func]]
+addr = 0x08038DAE
+mode = "thumb"
+name = "race_08038dae"
+
+[[extra_func]]
+addr = 0x08038DB0
+mode = "thumb"
+name = "race_08038db0"
+
+[[extra_func]]
+addr = 0x08038DF2
+mode = "thumb"
+name = "race_08038df2"
+
+[[extra_func]]
+addr = 0x08038E52
+mode = "thumb"
+name = "race_08038e52"
+
+[[extra_func]]
+addr = 0x08038E58
+mode = "thumb"
+name = "race_08038e58"
+
+[[extra_func]]
+addr = 0x08038E72
+mode = "thumb"
+name = "race_08038e72"
+
+[[extra_func]]
+addr = 0x08038EAA
+mode = "thumb"
+name = "race_08038eaa"
+
+[[extra_func]]
+addr = 0x08038ECA
+mode = "thumb"
+name = "race_08038eca"
+
+[[extra_func]]
+addr = 0x08038EDA
+mode = "thumb"
+name = "race_08038eda"
+
+[[extra_func]]
+addr = 0x08038F06
+mode = "thumb"
+name = "race_08038f06"
+
+[[extra_func]]
+addr = 0x08038F32
+mode = "thumb"
+name = "race_08038f32"
+
+[[extra_func]]
+addr = 0x08038F34
+mode = "thumb"
+name = "race_08038f34"
+
+[[extra_func]]
+addr = 0x08038F46
+mode = "thumb"
+name = "race_08038f46"
+
+[[extra_func]]
+addr = 0x08038F86
+mode = "thumb"
+name = "race_08038f86"
+
+[[extra_func]]
+addr = 0x08038FA6
+mode = "thumb"
+name = "race_08038fa6"
+
+[[extra_func]]
+addr = 0x08038FBE
+mode = "thumb"
+name = "race_08038fbe"
+
+[[extra_func]]
+addr = 0x08039010
+mode = "thumb"
+name = "race_08039010"
+
+[[extra_func]]
+addr = 0x08039044
+mode = "thumb"
+name = "race_08039044"
+
+[[extra_func]]
+addr = 0x0804B8DE
+mode = "thumb"
+name = "race_0804b8de"
+
+[[extra_func]]
+addr = 0x0804D26C
+mode = "thumb"
+name = "race_0804d26c"
+
+[[extra_func]]
+addr = 0x0804D7F6
+mode = "thumb"
+name = "race_0804d7f6"
+
+# Jump-table case targets at 0x08043CA4..0x08043CBA (bridged x53/x104/x95).
+[[extra_func]]
+addr = 0x08043CA4
+mode = "thumb"
+name = "race_08043ca4"
+
+[[extra_func]]
+addr = 0x08043CB0
+mode = "thumb"
+name = "race_08043cb0"
+
+[[extra_func]]
+addr = 0x08043CBA
+mode = "thumb"
+name = "race_08043cba"
+
+[[extra_func]]
+addr = 0x08044252
+mode = "thumb"
+name = "race_08044252"
+
+[[extra_func]]
+addr = 0x08044C8E
+mode = "thumb"
+name = "race_08044c8e"
+
+[[extra_func]]
+addr = 0x08044D4C
+mode = "thumb"
+name = "race_08044d4c"
+
+[[extra_func]]
+addr = 0x08044D50
+mode = "thumb"
+name = "race_08044d50"
+
+[[extra_func]]
+addr = 0x08044F22
+mode = "thumb"
+name = "race_08044f22"
+
+[[extra_func]]
+addr = 0x08044F28
+mode = "thumb"
+name = "race_08044f28"
+
+[[extra_func]]
+addr = 0x08050D58
+mode = "thumb"
+name = "race_08050d58"
+
+# High-frequency IWRAM entries (runtime-copied code). Declared so the
+# dispatch table resolves them instead of bridging the interpreter.
+# Verified against IWRAM dump + ROM byte-match (scripts/match_iwram_to_rom.py).
+[[code_copy]]
+runtime_start = 0x03000C60
+source_start = 0x08037500
+size = 896
+name = "iwram_copy_03000c60"
+note = "Thumb routine copied to IWRAM; matched 896 bytes vs ROM 0x08037500"
+
+[[code_copy]]
+runtime_start = 0x03002490
+source_start = 0x080000FC
+size = 1024
+name = "iwram_copy_03002490"
+note = "ARM IRQ/trampoline block copied to IWRAM; 1024 bytes matched. 0x0300258C is an interior entry."
+
+[[extra_func]]
+addr = 0x03000C60
+mode = "thumb"
+name = "iwram_03000c60"
+
+[[extra_func]]
+addr = 0x03002490
+mode = "arm"
+name = "iwram_03002490"
+
+[[extra_func]]
+addr = 0x0300258C
+mode = "arm"
+name = "iwram_0300258c"
+
+# Remaining cart misses near gf_tfunc_080320F8 after code_copy.
+[[extra_func]]
+addr = 0x08032414
+mode = "thumb"
+name = "race_08032414"
+
+[[extra_func]]
+addr = 0x08032426
+mode = "thumb"
+name = "race_08032426"
+
+[[extra_func]]
+addr = 0x08032498
+mode = "thumb"
+name = "race_08032498"
+
+[[extra_func]]
+addr = 0x080324DC
+mode = "thumb"
+name = "race_080324dc"
+
+[[extra_func]]
+addr = 0x08032554
+mode = "thumb"
+name = "race_08032554"
+
+[[extra_func]]
+addr = 0x0803255A
+mode = "thumb"
+name = "race_0803255a"
+
+[[extra_func]]
+addr = 0x08032600
+mode = "thumb"
+name = "race_08032600"
+
+# Rare-path cart misses (x1 each) after code_copy.
+[[extra_func]]
+addr = 0x0804CFBC
+mode = "thumb"
+name = "race_0804cfbc"
+
+[[extra_func]]
+addr = 0x0804D0E0
+mode = "thumb"
+name = "race_0804d0e0"
+
+[[extra_func]]
+addr = 0x0804D314
+mode = "thumb"
+name = "race_0804d314"
+
+[[extra_func]]
+addr = 0x08050C48
+mode = "thumb"
+name = "race_08050c48"
+
+# Audit cold replay (docs/audit-4501.log): valid Thumb subroutine reached from
+# 0x0805900C but absent from the generated dispatch table.
+[[extra_func]]
+addr = 0x080590C8
+mode = "thumb"
+name = "race_080590c8"

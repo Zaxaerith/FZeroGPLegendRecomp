@@ -1,0 +1,52 @@
+# User-owned copyrighted assets and local configuration
+AGENT_PROMPT.md
+*.gba
+*.GBA
+*.bin
+*.sav
+*.srm
+/game.toml
+/saves/
+/reference/
+
+# Generated source, build products, downloaded dependencies and JIT cache
+/build*/
+/_deps/
+/recomp/
+/recomp_cache/
+/src/runtime/gbarecomp/
+/src/generated/
+/src/generated_bios/
+*.exe
+*.dll
+*.pdb
+*.obj
+*.o
+*.a
+
+# Local investigation and debug output
+/docs/
+/scripts/*
+!/scripts/build.ps1
+recomp_coverage_*.json
+recomp_master_misses_*.toml.frag
+*.log
+*.bmp
+*.png
+*.gif
+*.input.csv
+*.jsonl
+*.dump
+*.trace
+*.bak
+*.zip
+*.7z
+*.tar
+*.gz
+
+# Editors and agent state
+.vs/
+.vscode/
+.codex/
+.agents/
+__pycache__/

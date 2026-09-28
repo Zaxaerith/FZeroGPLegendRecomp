@@ -1,0 +1,203 @@
+diff --git a/src/gba/gba_ppu.cpp b/src/gba/gba_ppu.cpp
+index 2b220c9..73e79ce 100644
+--- a/src/gba/gba_ppu.cpp
++++ b/src/gba/gba_ppu.cpp
+@@ -161,6 +161,7 @@ void GbaPpu::deserialize(gbarecomp::debug::SnapshotReader& r) {
+     // The snapshot format predates the PPU's internal affine reference
+     // accumulator. Reconstruct it from live BGxX/Y on the next scanline.
+     affine_line_ = {};
++    for (auto& s : affine_line_) s.last_line = -1;
+ }
+ 
+ void GbaPpu::reset() {
+@@ -172,6 +173,7 @@ void GbaPpu::reset() {
+     frame_count_ = 0;
+     has_latched_fb_ = false;
+     affine_line_ = {};
++    for (auto& s : affine_line_) s.last_line = -1;
+     std::memset(latched_fb_.data(), 0xFF, latched_fb_.size());
+     std::memset(work_fb_.data(), 0xFF, work_fb_.size());
+ }
+@@ -210,6 +212,8 @@ GbaPpu::TickEvents GbaPpu::tick(uint32_t cycles, uint16_t vcount_compare) {
+         ++dot_in_scanline_;
+         if (was_visible && dot_in_scanline_ == kDotsVisible) {
+             ev.hblank_started = true;
++            ev.hblank_scanline = scanline_;
++            ++ev.hblank_count;
+         }
+         if (dot_in_scanline_ >= kDotsPerScanline) {
+             dot_in_scanline_ = 0;
+@@ -2356,12 +2360,23 @@ void GbaPpu::render_scanline(uint32_t y,
+ 
+         const int32_t pb = read_s16(io, base + 0x02u);
+         const int32_t pd = read_s16(io, base + 0x06u);
++
++        // Catch up PB/PD for any scanlines that were not rendered (or for a
++        // jump in y). Without this, a single skipped line shifts every later
++        // row's sample origin and shows up as vertical pixel misalignment.
++        if (state.last_line >= 0 && static_cast<int32_t>(y) > state.last_line + 1) {
++            const int32_t gap = static_cast<int32_t>(y) - state.last_line - 1;
++            state.x += pb * gap;
++            state.y += pd * gap;
++        }
++
+         write_s28_ref(affine_io.data(), base + 0x08u,
+                       state.x - static_cast<int32_t>(y) * pb);
+         write_s28_ref(affine_io.data(), base + 0x0Cu,
+                       state.y - static_cast<int32_t>(y) * pd);
+         state.x += pb;
+         state.y += pd;
++        state.last_line = static_cast<int32_t>(y);
+     }
+ 
+     if (!view_expanded()) {
+diff --git a/src/gba/gba_ppu.h b/src/gba/gba_ppu.h
+index e81b343..ae2e7c9 100644
+--- a/src/gba/gba_ppu.h
++++ b/src/gba/gba_ppu.h
+@@ -72,6 +72,12 @@ public:
+         bool hblank_started = false;  // dot crossed visible → HBlank
+         bool vcount_matched = false;  // scanline became == compare value
+         bool frame_completed = false; // scanline wrapped 227 → 0
++        // Scanline that entered HBlank during this tick. Captured at the
++        // moment the flag is set so the caller never samples vcount() after
++        // a same-tick scanline increment (which would draw line N+1 and
++        // skip line N — visible as vertical pixel misalignment / row tears).
++        uint32_t hblank_scanline = 0;
++        uint32_t hblank_count = 0;  // how many HBlanks fired this tick
+     };
+ 
+     // Advance the PPU by `cycles` host cycles. Increments dot/scanline
+@@ -210,6 +216,10 @@ private:
+         bool valid_y = false;
+         bool reload_x = false;
+         bool reload_y = false;
++        // Last scanline whose accumulator was applied. Used to catch up
++        // PB/PD increments if a scanline render is skipped so later lines
++        // do not sample a stale X/Y (vertical row misalignment on affine BGs).
++        int32_t last_line = -1;
+     };
+     std::array<AffineLineState, 2> affine_line_{};
+ 
+diff --git a/src/runtime/overlay_compile.cpp b/src/runtime/overlay_compile.cpp
+index 553481c..cd3acd4 100644
+--- a/src/runtime/overlay_compile.cpp
++++ b/src/runtime/overlay_compile.cpp
+@@ -389,9 +389,11 @@ bool overlay_compile_one(const OverlayWorkItem& w,
+         const int rc = run_process(cmd, logpath.string(), err);
+         if (rc != 0) {
+             if (err) {
++                const std::string process_detail = *err;
+                 *err = std::string(heal_backend_name(backend)) + " exit " +
+                        std::to_string(rc) + " compiling " + cpath.string() +
+                        " — see " + logpath.string();
++                if (!process_detail.empty()) *err += " (" + process_detail + ")";
+             }
+             fs::remove(dlltmp, ec);
+             return false;
+diff --git a/src/runtime/runtime.cpp b/src/runtime/runtime.cpp
+index b560791..efcda71 100644
+--- a/src/runtime/runtime.cpp
++++ b/src/runtime/runtime.cpp
+@@ -2077,28 +2077,13 @@ int run_game(int argc, char** argv, const RunOptions& opts) {
+     // ring records from machine reset (no arm-then-run gap), so this is a
+     // pure query of recorded history — two builds run identically diff
+     // bit-for-bit on these files. (Arm with GBARECOMP_INSN_TRACE=1.)
+-    // Per-game default filenames (overridable by env) so concurrent / serial
+-    // runs of different games don't clobber each other's miss logs — the cause
+-    // of "which game is this frag from?" ambiguity. Tag = sanitized 4-char game
+-    // code (e.g. BPEE), falling back to "unknown".
+-    auto game_tag = [&]() {
+-        std::string t;
+-        for (char c : header.game_code)
+-            if (std::isalnum(static_cast<unsigned char>(c))) t += c;
+-        return t.empty() ? std::string("unknown") : t;
+-    };
+     auto emit_exit_diagnostics = [&]() {
+-        const std::string tag = game_tag();
+-        const std::string default_frag = "recomp_master_misses_" + tag + ".toml.frag";
+-        const std::string default_cov  = "recomp_coverage_" + tag + ".json";
+         const char* frag = std::getenv("GBARECOMP_MISS_FRAG");
+-        gbarecomp::self_heal_write_report(
+-            frag ? frag : default_frag.c_str());
+-        // Machine-readable coverage summary for the build loop / CI (written
+-        // every exit, FULLY_STATIC included). Override path with env.
++        if (frag && *frag) gbarecomp::self_heal_write_report(frag);
++        // Diagnostics are developer opt-in. Ordinary gameplay writes only
++        // the game's save, never a coverage or dispatch report in the cwd.
+         const char* cov = std::getenv("GBARECOMP_COVERAGE_JSON");
+-        gbarecomp::self_heal_write_coverage_json(
+-            cov ? cov : default_cov.c_str());
++        if (cov && *cov) gbarecomp::self_heal_write_coverage_json(cov);
+         if (const char* fp = std::getenv("GBARECOMP_FP_SAVE")) {
+             uint32_t n = runtime_fp_save_file(fp);
+             std::printf("fp_ring_saved path=\"%s\" records=%u\n", fp, n);
+@@ -3660,8 +3645,11 @@ int run_game(int argc, char** argv, const RunOptions& opts) {
+                     (frame % static_cast<uint64_t>(
+                          fast_forward_multiplier) == 0);
+                 if (present_frame) {
+-                    const bool view_changed = sync_resize_driven_view();
+-                    if (ppu.has_latched_framebuffer() && !view_changed) {
++                    (void)sync_resize_driven_view();
++                    // Always prefer the scanline-latched FB. A full-frame
++                    // ppu.render() flattens HBlank raster effects and shows
++                    // as vertical row misalignment on affine/city BGs.
++                    if (ppu.has_latched_framebuffer()) {
+                         std::memcpy(live_fb.data(), ppu.latched_framebuffer(),
+                                     ppu.render_bytes());
+                     } else {
+@@ -4059,8 +4047,11 @@ int run_game(int argc, char** argv, const RunOptions& opts) {
+                     (frame % static_cast<uint64_t>(
+                          fast_forward_multiplier) == 0);
+                 if (present_frame) {
+-                    const bool view_changed = sync_resize_driven_view();
+-                    if (ppu.has_latched_framebuffer() && !view_changed) {
++                    (void)sync_resize_driven_view();
++                    // Always prefer the scanline-latched FB. A full-frame
++                    // ppu.render() flattens HBlank raster effects and shows
++                    // as vertical row misalignment on affine/city BGs.
++                    if (ppu.has_latched_framebuffer()) {
+                         std::memcpy(live_fb.data(), ppu.latched_framebuffer(),
+                                     ppu.render_bytes());
+                     } else {
+diff --git a/src/runtime/runtime_bus_bridge.cpp b/src/runtime/runtime_bus_bridge.cpp
+index 947db1c..3f23a36 100644
+--- a/src/runtime/runtime_bus_bridge.cpp
++++ b/src/runtime/runtime_bus_bridge.cpp
+@@ -544,15 +544,29 @@ static void tick_devices(gba::GbaBus* bus, gba::GbaPpu* ppu, uint32_t cycles) {
+         auto events = ppu->tick(chunk, vc_compare);
+         uint16_t ds = bus->io().dispstat();
+         if (events.hblank_started &&
+-            ppu->vcount() < gba::GbaPpu::kLinesVisible) {
++            events.hblank_scanline < gba::GbaPpu::kLinesVisible) {
+             std::chrono::steady_clock::time_point _prof_t0;
+             if (g_phase_prof) _prof_t0 = std::chrono::steady_clock::now();
+-            ppu->render_scanline(ppu->vcount(),
+-                                 bus->io().read16(0x000),
+-                                 bus->io().raw(),
+-                                 bus->vram_ptr(),
+-                                 bus->oam_ptr(),
+-                                 bus->pal_ptr());
++            // Render the scanline that actually entered HBlank. Do not sample
++            // ppu->vcount() here: a single tick can also cross the scanline
++            // wrap, which would draw N+1 and skip N (vertical row tears).
++            const uint32_t hblank_lines =
++                events.hblank_count ? events.hblank_count : 1u;
++            const uint32_t first_line =
++                events.hblank_scanline + 1u >= hblank_lines
++                    ? events.hblank_scanline + 1u - hblank_lines
++                    : 0u;
++            for (uint32_t line = first_line;
++                 line <= events.hblank_scanline &&
++                 line < gba::GbaPpu::kLinesVisible;
++                 ++line) {
++                ppu->render_scanline(line,
++                                     bus->io().read16(0x000),
++                                     bus->io().raw(),
++                                     bus->vram_ptr(),
++                                     bus->oam_ptr(),
++                                     bus->pal_ptr());
++            }
+             if (g_phase_prof) {
+                 g_prof_scanline_ns += static_cast<unsigned long long>(
+                     std::chrono::duration_cast<std::chrono::nanoseconds>(
