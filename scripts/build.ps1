@@ -6,6 +6,7 @@ param(
     [string]$TomlppIncludeDir,
     [string]$RuntimeSource,
     [string]$BuildDir = 'build-release',
+    [switch]$RegenerateCartridgeSource,
     [ValidateRange(1, 16)][int]$Parallel = 2
 )
 
@@ -119,10 +120,9 @@ foreach ($file in @((Join-Path $sdlInclude 'SDL.h'), $sdlLibrary, $sdlDll)) {
     if (-not (Test-Path -LiteralPath $file)) { throw "SDL2 file missing: $file" }
 }
 
-$cartDir = Join-Path $buildPath 'generated_cart'
 $biosDir = Join-Path $buildPath 'generated_bios'
 $saveDir = Join-Path $buildPath 'saves'
-New-Item -ItemType Directory -Path $cartDir, $biosDir, $saveDir -Force | Out-Null
+New-Item -ItemType Directory -Path $biosDir, $saveDir -Force | Out-Null
 $template = Get-Content -LiteralPath (Join-Path $root 'config/game.toml.in') -Raw
 $config = $template.Replace('@ROM_PATH@', (Toml-Path $RomPath))
 $config = $config.Replace('@BIOS_PATH@', (Toml-Path $BiosPath))
@@ -135,7 +135,6 @@ $configure = @(
     '-DCMAKE_BUILD_TYPE=Release',
     "-DCMAKE_C_COMPILER=$cc", "-DCMAKE_CXX_COMPILER=$cxx",
     "-DGBARECOMP_ROOT=$runtimePath",
-    "-DGBARECOMP_GENERATED_CART_DIR=$cartDir",
     "-DGBARECOMP_GENERATED_BIOS_DIR=$biosDir",
     '-DGBARECOMP_SELFHEAL_RECOMPILE_DEFAULT=ON',
     "-DGBARECOMP_MINGW_RUNTIME_BIN=$ToolchainBin",
@@ -155,8 +154,16 @@ Assert-Exit 'gba_recompile build'
 $generator = Join-Path $buildPath 'runtime_build/gba_recompile.exe'
 & $generator --bios $BiosPath --config (Join-Path $root 'config/bios-resume.toml') --out $biosDir
 Assert-Exit 'BIOS recompilation'
-& $generator --rom $RomPath --config $gameConfig --out $cartDir
-Assert-Exit 'ROM recompilation'
+if ($RegenerateCartridgeSource) {
+    $cartDir = Join-Path $buildPath 'generated_cart'
+    New-Item -ItemType Directory -Path $cartDir -Force | Out-Null
+    & $generator --rom $RomPath --config $gameConfig --out $cartDir
+    Assert-Exit 'ROM recompilation'
+    $python = Get-Command python.exe -ErrorAction Stop
+    & $python.Source (Join-Path $root 'scripts/organize_cartridge_source.py') `
+        $cartDir (Join-Path $root 'src/cartridge')
+    Assert-Exit 'cartridge source organization'
+}
 & $cmake.Source @configure
 Assert-Exit 'CMake configure for generated sources'
 & $cmake.Source --build $buildPath --target fzero --parallel $Parallel

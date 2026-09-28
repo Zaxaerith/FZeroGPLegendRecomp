@@ -9,7 +9,7 @@ AGENT_PROMPT.md
 /saves/
 /reference/
 
-# Generated source, build products, downloaded dependencies and JIT cache
+# Local generated BIOS source, build products, downloaded dependencies and JIT cache
 /build*/
 /_deps/
 /recomp/
@@ -28,6 +28,7 @@ AGENT_PROMPT.md
 /docs/
 /scripts/*
 !/scripts/build.ps1
+!/scripts/organize_cartridge_source.py
 recomp_coverage_*.json
 recomp_master_misses_*.toml.frag
 *.log

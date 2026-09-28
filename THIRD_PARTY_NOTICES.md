@@ -1,6 +1,7 @@
 # Third-party notices
 
-This repository contains integration code and a patch for a pinned copy of
+This repository contains generated cartridge C++ translated from the supported
+game dump, plus integration code and a patch for a pinned copy of
 [gbarecomp](https://github.com/mstan/gbarecomp), commit
 `477e3d12dd0920a4961d58ba625ec2afe505c1fb`. The upstream project is
 copyright Matthew Stanley and is licensed under PolyForm Noncommercial 1.0.0;
@@ -27,4 +28,6 @@ toolchain distribution.
 
 The project's own integration code is licensed by Zaxaerith under the
 [PolyForm Noncommercial License 1.0.0](LICENSE). This does not change the
-copyright or license of any third-party component or game data.
+copyright or license of any third-party component or original game code and
+assets. The translated cartridge code does not carry a grant of rights to
+the underlying game.

@@ -15,19 +15,19 @@ set(GBARECOMP_GENERATED_BIOS_DIR
     CACHE PATH "Locally generated BIOS source")
 add_subdirectory("${GBARECOMP_ROOT}" runtime_build EXCLUDE_FROM_ALL)
 
-set(GBARECOMP_GENERATED_CART_DIR
-    "${CMAKE_CURRENT_BINARY_DIR}/generated_cart"
-    CACHE PATH "Locally generated cart source")
-file(GLOB GAME_GENERATED_SOURCES CONFIGURE_DEPENDS
-    "${GBARECOMP_GENERATED_CART_DIR}/*.cpp")
+file(GLOB GAME_RECOMPILED_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cartridge/*.cpp")
+if(NOT GAME_RECOMPILED_SOURCES)
+    message(FATAL_ERROR "Recompiled cartridge source missing from src/cartridge")
+endif()
 
-add_executable(fzero WIN32 src/main.cpp src/host_setup.cpp ${GAME_GENERATED_SOURCES})
+add_executable(fzero WIN32 src/main.cpp src/host_setup.cpp ${GAME_RECOMPILED_SOURCES})
 target_include_directories(fzero PRIVATE
     "${GBARECOMP_ROOT}/src/armv4t"
     "${GBARECOMP_ROOT}/src/gba"
     "${GBARECOMP_ROOT}/src/runtime"
     "${GBARECOMP_ROOT}/src/debug"
-    "${GBARECOMP_GENERATED_CART_DIR}")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cartridge")
 target_link_libraries(fzero PRIVATE
     "-Wl,--start-group"
     gbarecomp_runtime
