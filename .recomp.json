@@ -1,0 +1,22 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "F-Zero: GP Legend",
+  "system": "GBA",
+  "type": "recomp",
+  "project": "F-Zero: GP Legend Recomp",
+  "status": "playable",
+  "targets": [
+    "Windows"
+  ],
+  "toolchain": "GBARecomp",
+  "original": {
+    "region": "USA",
+    "sha1": "977588d9d27b7115e0bb309fb019ae81b9f413ff"
+  },
+  "maintainers": [
+    {
+      "name": "Zaxaerith",
+      "link": "https://github.com/Zaxaerith"
+    }
+  ]
+}
