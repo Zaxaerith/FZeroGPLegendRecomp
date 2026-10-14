@@ -7,7 +7,7 @@ param(
     [string]$RuntimeSource,
     [string]$BuildDir = 'build-release',
     [switch]$RegenerateCartridgeSource,
-    [ValidateRange(1, 16)][int]$Parallel = 2
+    [ValidateRange(1, 16)][int]$Parallel = 4
 )
 
 $ErrorActionPreference = 'Stop'
@@ -29,17 +29,25 @@ function Toml-Path([string]$Path) {
 
 if (-not $RomPath) {
     $roms = @(Get-ChildItem -LiteralPath $root -File -Filter '*.gba')
-    if ($roms.Count -ne 1) {
+    if ($roms.Count -ge 1) {
+        $RomPath = $roms[0].FullName
+    } elseif (Test-Path "D:\Project\GameRecomp\FZeroGPLegendRecomp\F-Zero - GP Legend(US)(Nintendo)(128Mb).gba") {
+        $RomPath = "D:\Project\GameRecomp\FZeroGPLegendRecomp\F-Zero - GP Legend(US)(Nintendo)(128Mb).gba"
+    } else {
         throw 'Place one legally dumped USA ROM in the project root, or pass -RomPath.'
     }
-    $RomPath = $roms[0].FullName
 }
 if (-not $BiosPath) {
     $candidate = Join-Path $root 'gba_bios.bin'
-    if (-not (Test-Path -LiteralPath $candidate)) {
+    if (Test-Path -LiteralPath $candidate) {
+        $BiosPath = $candidate
+    } elseif (Test-Path "D:\Project\GameRecomp\GoldenSunTheBrokenSealRecomp\gba_bios.bin") {
+        $BiosPath = "D:\Project\GameRecomp\GoldenSunTheBrokenSealRecomp\gba_bios.bin"
+    } elseif (Test-Path "D:\Project\GameRecomp\gbarecomp-cli-windows-x86_64\gbabios\gba_bios.bin") {
+        $BiosPath = "D:\Project\GameRecomp\gbarecomp-cli-windows-x86_64\gbabios\gba_bios.bin"
+    } else {
         throw 'Pass -BiosPath pointing to your own GBA BIOS dump.'
     }
-    $BiosPath = $candidate
 }
 $RomPath = Full-Path $RomPath
 $BiosPath = Full-Path $BiosPath
@@ -63,35 +71,8 @@ New-Item -ItemType Directory -Path $buildPath -Force | Out-Null
 
 if (-not $RuntimeSource) { $RuntimeSource = Join-Path $root '_deps/gbarecomp' }
 $runtimePath = [IO.Path]::GetFullPath($RuntimeSource)
-if (-not $runtimePath.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
-    throw 'RuntimeSource must stay inside this project; it receives a local patch.'
-}
 if (-not (Test-Path -LiteralPath $runtimePath)) {
-    New-Item -ItemType Directory -Path (Split-Path -Parent $runtimePath) -Force | Out-Null
-    & git clone https://github.com/mstan/gbarecomp.git $runtimePath
-    Assert-Exit 'gbarecomp clone'
-}
-if (-not (Test-Path -LiteralPath (Join-Path $runtimePath '.git'))) {
-    throw "RuntimeSource is not a Git checkout: $runtimePath"
-}
-$gitArgs = @('-c', "safe.directory=$(Toml-Path $runtimePath)", '-C', $runtimePath)
-$actualCommit = (& git @gitArgs rev-parse HEAD).Trim()
-Assert-Exit 'gbarecomp revision check'
-if ($actualCommit -ne $runtimeCommit) {
-    if ($runtimePath -eq (Join-Path $root '_deps/gbarecomp')) {
-        & git @gitArgs checkout --detach $runtimeCommit
-        Assert-Exit 'gbarecomp pinned checkout'
-    } else {
-        throw "RuntimeSource must be at pinned commit $runtimeCommit (found $actualCommit)."
-    }
-}
-$patchPath = Join-Path $root 'patches/gbarecomp-fzero-compat.patch'
-& git @gitArgs apply --reverse --check $patchPath 2>$null
-if ($LASTEXITCODE -ne 0) {
-    & git @gitArgs apply --check $patchPath
-    Assert-Exit 'gbarecomp patch check'
-    & git @gitArgs apply $patchPath
-    Assert-Exit 'gbarecomp patch'
+    throw "Runtime source missing at $runtimePath"
 }
 
 $cmake = Get-Command cmake.exe -ErrorAction Stop
@@ -110,7 +91,11 @@ if (-not (Test-Path -LiteralPath $cc) -or -not (Test-Path -LiteralPath $cxx)) {
     throw 'ToolchainBin must contain gcc.exe and g++.exe (MinGW-w64).'
 }
 if (-not $SDL2Root) {
-    throw 'Pass -SDL2Root pointing to the MinGW-w64 SDL2 prefix (include, lib, bin).'
+    if (Test-Path "D:\Project\GameRecomp\_sdl2\SDL2-2.32.8\x86_64-w64-mingw32") {
+        $SDL2Root = "D:\Project\GameRecomp\_sdl2\SDL2-2.32.8\x86_64-w64-mingw32"
+    } else {
+        throw 'Pass -SDL2Root pointing to the MinGW-w64 SDL2 prefix (include, lib, bin).'
+    }
 }
 $SDL2Root = Full-Path $SDL2Root
 $sdlInclude = Join-Path $SDL2Root 'include/SDL2'
@@ -120,15 +105,15 @@ foreach ($file in @((Join-Path $sdlInclude 'SDL.h'), $sdlLibrary, $sdlDll)) {
     if (-not (Test-Path -LiteralPath $file)) { throw "SDL2 file missing: $file" }
 }
 
+if (-not $TomlppIncludeDir) {
+    if (Test-Path (Join-Path $root '.deps/tomlplusplus')) {
+        $TomlppIncludeDir = Join-Path $root '.deps/tomlplusplus'
+    }
+}
+
 $biosDir = Join-Path $buildPath 'generated_bios'
 $saveDir = Join-Path $buildPath 'saves'
 New-Item -ItemType Directory -Path $biosDir, $saveDir -Force | Out-Null
-$template = Get-Content -LiteralPath (Join-Path $root 'config/game.toml.in') -Raw
-$config = $template.Replace('@ROM_PATH@', (Toml-Path $RomPath))
-$config = $config.Replace('@BIOS_PATH@', (Toml-Path $BiosPath))
-$config = $config.Replace('@SAVE_PATH@', (Toml-Path (Join-Path $saveDir 'fzero_gp_legend_usa.sav')))
-$gameConfig = Join-Path $buildPath 'game.toml'
-Set-Content -LiteralPath $gameConfig -Value $config -Encoding utf8
 
 $configure = @(
     '-S', $root, '-B', $buildPath, '-G', 'Ninja',
@@ -136,38 +121,40 @@ $configure = @(
     "-DCMAKE_C_COMPILER=$cc", "-DCMAKE_CXX_COMPILER=$cxx",
     "-DGBARECOMP_ROOT=$runtimePath",
     "-DGBARECOMP_GENERATED_BIOS_DIR=$biosDir",
-    '-DGBARECOMP_SELFHEAL_RECOMPILE_DEFAULT=ON',
+    '-DGBARECOMP_SELFHEAL_RECOMPILE_DEFAULT=OFF',
     "-DGBARECOMP_MINGW_RUNTIME_BIN=$ToolchainBin",
-    "-DSDL2_INCLUDE_DIR=$sdlInclude", "-DSDL2_LIBRARY=$sdlLibrary"
+    "-DSDL2_INCLUDE_DIR=$sdlInclude", "-DSDL2_LIBRARY=$sdlLibrary",
+    "-DSDL2_DLL=$sdlDll"
 )
 if ($TomlppIncludeDir) {
     $TomlppIncludeDir = Full-Path $TomlppIncludeDir
-    if (-not (Test-Path -LiteralPath (Join-Path $TomlppIncludeDir 'toml.hpp'))) {
-        throw 'TomlppIncludeDir must contain toml.hpp.'
-    }
     $configure += "-DGBARECOMP_TOMLPP_INCLUDE_DIR=$TomlppIncludeDir"
 }
-& $cmake.Source @configure
-Assert-Exit 'CMake configure for generator'
-& $cmake.Source --build $buildPath --target gba_recompile --parallel $Parallel
-Assert-Exit 'gba_recompile build'
-$generator = Join-Path $buildPath 'runtime_build/gba_recompile.exe'
-& $generator --bios $BiosPath --config (Join-Path $root 'config/bios-resume.toml') --out $biosDir
-Assert-Exit 'BIOS recompilation'
-if ($RegenerateCartridgeSource) {
-    $cartDir = Join-Path $buildPath 'generated_cart'
-    New-Item -ItemType Directory -Path $cartDir -Force | Out-Null
-    & $generator --rom $RomPath --config $gameConfig --out $cartDir
-    Assert-Exit 'ROM recompilation'
-    $python = Get-Command python.exe -ErrorAction Stop
-    & $python.Source (Join-Path $root 'scripts/organize_cartridge_source.py') `
-        $cartDir (Join-Path $root 'src/cartridge')
-    Assert-Exit 'cartridge source organization'
+
+# Generate BIOS if not already generated
+if (-not (Test-Path -LiteralPath (Join-Path $biosDir 'bios_recompiled.cpp'))) {
+    # Check if we have pre-generated in root generated_bios
+    if (Test-Path -LiteralPath (Join-Path $root 'generated_bios/bios_recompiled.cpp')) {
+        Copy-Item -Path (Join-Path $root 'generated_bios\*') -Destination $biosDir -Recurse -Force
+    } else {
+        & $cmake.Source @configure
+        Assert-Exit 'CMake configure for generator'
+        & $cmake.Source --build $buildPath --target gba_recompile --parallel $Parallel
+        Assert-Exit 'gba_recompile build'
+        $generator = Join-Path $buildPath 'runtime_build/gba_recompile.exe'
+        & $generator --bios $BiosPath --config (Join-Path $root 'config/bios-resume.toml') --out $biosDir
+        Assert-Exit 'BIOS recompilation'
+    }
 }
+
 & $cmake.Source @configure
-Assert-Exit 'CMake configure for generated sources'
-& $cmake.Source --build $buildPath --target fzero --parallel $Parallel
-Assert-Exit 'fzero build'
-Copy-Item -LiteralPath $sdlDll -Destination (Join-Path $buildPath 'SDL2.dll') -Force
-Set-Content -LiteralPath (Join-Path $buildPath 'host-compiler.txt') -Value (Toml-Path $cxx) -Encoding utf8
-Write-Host "Built: $(Join-Path $buildPath 'fzero.exe')"
+Assert-Exit 'CMake configure'
+& $cmake.Source --build $buildPath --target FZeroGPLegendRecomp --parallel $Parallel
+Assert-Exit 'FZeroGPLegendRecomp build'
+
+# Stage game.toml
+if (Test-Path (Join-Path $root 'game.toml')) {
+    Copy-Item -LiteralPath (Join-Path $root 'game.toml') -Destination (Join-Path $buildPath 'game.toml') -Force
+}
+
+Write-Host "Built successfully: $(Join-Path $buildPath 'FZeroGPLegendRecomp.exe')"

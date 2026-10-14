@@ -1,4 +1,4 @@
-"""Organize gba_recompile cartridge output into publishable C++ modules.
+"""Organize local gba_recompile cartridge output into temporary C++ modules.
 
 Only cartridge code is handled here. BIOS output and ROM data stay local.
 The address based names are retained where a function's role is unknown.
@@ -87,6 +87,6 @@ def organize(source: Path, destination: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="gba_recompile cartridge output")
-    parser.add_argument("destination", type=Path, help="repository src/cartridge directory")
+    parser.add_argument("destination", type=Path, help="temporary generated cartridge directory")
     args = parser.parse_args()
     organize(args.source, args.destination)

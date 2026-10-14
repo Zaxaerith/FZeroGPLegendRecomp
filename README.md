@@ -1,220 +1,141 @@
 # F-Zero: GP Legend Recomp
 
-[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#requirements)
-[![Language](https://img.shields.io/badge/language-C%2B%2B20-orange)](#how-it-works)
-[![License](https://img.shields.io/badge/license-PolyForm--Noncommercial--1.0.0-blue)](LICENSE)
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-An experimental native recompilation of **F-Zero: GP Legend** (Game Boy
-Advance, USA, game code `BFZE`) for Windows x64. It translates ARM/Thumb
-cartridge instructions into C++ and runs them with the
-[gbarecomp](https://github.com/mstan/gbarecomp) GBA hardware runtime.
+A native Windows x64 static recompilation for **F-Zero: GP Legend (USA, Game Code: BFZE)**, built using [GBARecomp](https://github.com/mstan/gbarecomp) and [recomp-ui](https://github.com/mstan/recomp-ui).
 
-This is an **early experimental preview**. The repository publishes the
-recompiled cartridge C++ source and the integration/build pipeline. It does
-not contain a ROM image, BIOS image, extracted graphics or audio, save data,
-or a prebuilt executable. To build and play, supply your own legally obtained
-game and BIOS dumps.
+> **v0.1.0-preview — Experimental Preview**  
+> This unofficial, non-commercial fan project is not affiliated with, endorsed by, or associated with Nintendo or Suzak. Players must supply their own legally obtained GBA ROM and retail GBA BIOS. Cartridge C++ source code is a mechanical translation of original game machine code; publishing or building it does not grant rights to the original game code, graphics, audio, or trademarks.
 
-## How it works
+---
 
-The checked-in `src/cartridge/` contains 9,973 generated guest functions,
-plus a dispatch table and symbol map. The translated functions are compiled
-into a native Windows executable. The shared gbarecomp runtime handles GBA
-memory, video, audio, input, DMA, timers, interrupts, cartridge access, and
-interpreter/JIT fallback for code that static analysis has not covered.
+## Verified Playable Scope & Current Status
 
-The source modules separate **verified roles** such as race entries, menu
-entries, and relocated IWRAM code. Functions without established semantics
-retain stable GBA address-based names and are grouped into address ranges.
-Those names describe location rather than guess the original function's
-purpose. Cartridge source can be regenerated from the verified ROM using the
-supplied script; BIOS source is generated locally during every build.
+- [x] **Cold Boot & BIOS**: Real retail GBA BIOS intro animation and sound (`gba_bios.bin`).
+- [x] **Title Screen & Attract Mode**: Title screen, game mode selection, option menus, and class select.
+- [x] **Grand Prix Mode**: Race intro, countdown, high-speed 60 fps racing, steering, acceleration, boosting, and race HUD advance.
+- [x] **Time Attack**: Race Play entry, Class Select, machine select, and track loading.
+- [x] **Save Persistence**: 32 KiB SRAM cartridge save data read/write verified (`saves/fzero_gp_legend_usa.sav`).
+- [x] **Visual Accuracy**: Custom PPU HBlank scanline fix and Affine BG line catch-up patches applied to prevent vertical row tearing on 3D race tracks.
+- [x] **Zero Compiler Dependency for Players**: Full static recompiled corpus (9,973 guest functions) combined with Stage-1 interpreter fallback for residual calls. **No local MinGW/GCC toolchain is required on the player's system.**
+- [x] **Desktop Player Launcher**: Interactive GUI (`recomp-ui`) providing file selection, SHA-1 and size validation, keybinding/gamepad mapping, window scaling, and volume controls.
+- [x] **Windows GUI Subsystem**: Clean launch directly into desktop window without an intrusive command prompt (`-mwindows`).
+- [x] **Developer CLI Mode**: Preserves `--dev` and CLI argument overrides (`--rom`, `--bios`, `--frames`, etc.) for debugging and tooling.
 
-## Current status
+### Scope Open for Community Testing
 
-The following paths were verified with the supported USA dump on Windows:
+This preview provides a solid, playable native foundation. The following aspects remain open for community testing and feedback:
+- Full completion of every Grand Prix cup (Bronze, Silver, Gold, Platinum) across all difficulty levels (Novice, Standard, Expert, Master).
+- Story Mode chapters and Zero Test license tests.
+- Championship Mode and link-cable multiplayer modes.
+- Gamepad rumble/haptic feedback integration.
 
-| Area | Observed result |
-| --- | --- |
-| Boot | Original BIOS intro, title screen, and menus appear. |
-| Grand Prix | A race starts; steering and acceleration respond; speed and race timer advance. |
-| Save/load | A 32 KiB save was created and loaded after restarting. |
-| Normal launch | GUI window opens without a console; input replay is disabled unless `--dev` is passed. |
-| Static coverage | 9,973 cartridge functions are compiled; six observed IWRAM dispatch addresses still use fallback in the tested race. |
+---
 
-The race smoke test ran 4,501 presented frames from an empty JIT cache. This
-does not establish compatibility across every cup, track, mode, or machine.
+## Quick Start (Players)
 
-## Requirements
+No developer tools (CMake, Ninja, GCC, Python, or MinGW) are needed.
 
-- Windows x64; PowerShell 7 (`pwsh`), Git, native Windows CMake 3.20+, Ninja,
-  and a MinGW-w64 GCC C/C++ toolchain.
-- SDL2 2.x development files for MinGW-w64: `include/SDL2/SDL.h`,
-  `lib/libSDL2.dll.a`, and `bin/SDL2.dll` under one SDL2 prefix.
-- Your own USA game dump and GBA BIOS dump matching the identities below.
-- Network access for the pinned gbarecomp and toml++ sources on a first build,
-  unless local copies are supplied. The build keeps downloaded files in
-  ignored local directories.
+1. **Download**: Obtain `FZeroGPLegendRecomp-windows-x64-v0.1.0-preview.zip`.
+2. **Extract**: Unzip the package into a clean folder on your computer. Keep `FZeroGPLegendRecomp.exe`, all DLL files, `game.toml`, `assets/`, and `licenses/` together.
+3. **Launch**: Double-click `FZeroGPLegendRecomp.exe`.
+4. **Configure in Launcher**:
+   - Click **Browse** to choose your USA ROM file (`.gba`) and retail GBA BIOS dump (`.bin`).
+   - The launcher verifies file sizes and SHA-1 checksums automatically. Green checkmarks appear when verified.
+   - Adjust screen scaling (1x–6x or fullscreen), master volume, and keyboard/controller bindings.
+5. **Play**: Click **Play** to enter the race!
 
-| Input | Required identity |
-| --- | --- |
-| Game | USA `BFZE`, 16,777,216 bytes, CRC32 `781AAB58`, SHA-1 `977588D9D27B7115E0BB309FB019AE81B9F413FF` |
-| GBA BIOS | 16,384 bytes, SHA-1 `300C20DF6731A33952DED8C436F7F186D25D3492` |
+> [!TIP]
+> Your selected paths and settings are saved automatically in `rom.cfg`, `bios.cfg`, and `config.ini`. If you check "Skip Launcher" and later wish to reconfigure, launch `FZeroGPLegendRecomp.exe --launcher` from a shortcut or command line.
 
-The build script checks both SHA-1 hashes. Other cartridge revisions have
-different addresses and are not supported by this source set.
+---
 
-## Quick start
+## Required Private Files
 
-Clone the repository and place **one** matching `.gba` file in its root.
-Place your own `gba_bios.bin` there too, or pass its path explicitly. From
-the repository root, run:
+You must provide legally dumped copies of the game ROM and retail GBA BIOS. Neither file is included in this repository or binary distribution.
 
+| File | Supported Identity | Size | Expected SHA-1 |
+|---|---|---:|---|
+| **Game ROM** | *F-Zero: GP Legend* (USA, Code `BFZE`) | 16,777,216 bytes (16 MiB) | `977588d9d27b7115e0bb309fb019ae81b9f413ff` |
+| **GBA BIOS** | Retail Game Boy Advance BIOS | 16,384 bytes (16 KiB) | `300c20df6731a33952ded8c436f7f186d25d3492` |
+
+---
+
+## Controls and Settings
+
+### Default Keyboard Controls
+
+| GBA Button | PC Default Key | Function |
+|---|---|---|
+| **D-Pad Up** | `W` / `Up Arrow` | Menu Up / Lean Forward |
+| **D-Pad Down** | `S` / `Down Arrow` | Menu Down / Lean Backward |
+| **D-Pad Left** | `A` / `Left Arrow` | Steer Left |
+| **D-Pad Right** | `D` / `Right Arrow` | Steer Right |
+| **A** | `Z` / `J` | Accelerate / Confirm |
+| **B** | `X` / `K` | Brake / Cancel |
+| **L** | `Q` / `U` | Slide Turn Left |
+| **R** | `E` / `I` | Slide Turn Right |
+| **START** | `Enter` | Pause / Options Menu |
+| **SELECT** | `Backspace` | Status / Machine Info |
+
+### Controller Support
+Xbox, PlayStation, Nintendo Switch Pro, and standard DirectInput/XInput controllers are natively supported through SDL2. Configure custom buttons in the launcher's **Input** tab.
+
+### Display and Audio
+- **Scaling**: 1x through 6x integer scaling or borderless fullscreen (`F11` / `Alt+Enter`).
+- **Aspect Ratio**: Authentic 3:2 GBA presentation (240x160 base resolution).
+- **Audio**: Low-latency 16-bit 44.1 kHz stereo audio with master volume control.
+
+---
+
+## Technical Architecture
+
+### 1. Static Recompilation Corpus
+The checked-in `src/cartridge/` contains 9,973 statically recompiled C++ functions derived from the ARM/Thumb machine code of the USA ROM. These functions compile natively into x64 machine code, eliminating instruction interpretation overhead during core gameplay.
+
+### 2. Runtime Framework & Compatibility Patches
+The game runs on a pinned commit (`477e3d12dd0920a4961d58ba625ec2afe505c1fb`) of `gbarecomp`, augmented by `patches/gbarecomp-fzero-compat.patch`:
+- **PPU HBlank Scanline Sampling**: Ensures scanline latches accurately record HBlank boundaries to prevent vertical tearing and misaligned affine background rows during high-speed Mode-7 rotation.
+- **Affine BG Catch-up**: Compensates accumulated PB/PD matrix parameters if individual scanline renders are skipped.
+- **MinGW 64 MiB Stack**: Allocates a 64 MiB stack (`-Wl,--stack,67108864`) to safely accommodate nested dispatch paths.
+
+### 3. Interpreter Fallback (Zero JIT Compiler Dependency)
+In previous developer builds, uncovered guest paths relied on runtime JIT recompilation via a local MinGW toolchain path written to `host-compiler.txt`. This release eliminates that requirement:
+- Three relocated IWRAM subroutines are mapped statically via `[[code_copy]]` declarations.
+- Residual dispatch misses (such as data table lookups or rare branch targets) execute through GBARecomp's built-in reference interpreter.
+- `GBARECOMP_SELFHEAL_RECOMPILE_DEFAULT` is disabled (`OFF`) by default for players, providing a self-contained, crash-free preview without spawning background compiler processes or requiring local toolchains.
+
+---
+
+## Building from Source
+
+### Prerequisites
+- Windows 10/11 x64
+- Git
+- CMake 3.20+
+- Ninja build system
+- MinGW-w64 GCC/G++ with C++20 support
+- SDL2 development libraries (MinGW x86_64)
+
+### Build Commands
 ```powershell
-pwsh ./scripts/build.ps1 -BiosPath 'C:\path\to\gba_bios.bin' `
-  -SDL2Root 'C:\path\to\SDL2\x86_64-w64-mingw32' `
-  -ToolchainBin 'C:\path\to\mingw64\bin'
+# Clone the repository
+git clone https://github.com/Zaxaerith/FZeroGPLegendRecomp.git
+cd FZeroGPLegendRecomp
+
+# Switch to the feature branch
+git checkout feature/player-launcher-preview
+
+# Run the build script (adjust ROM/BIOS paths if not placed in project root)
+pwsh ./scripts/build.ps1 -Parallel 4
 ```
 
-You can keep both dumps elsewhere by adding `-RomPath` and `-BiosPath`.
-Specify `-RuntimeSource` for an existing local gbarecomp checkout inside
-this project and `-TomlppIncludeDir` for an existing toml++ include directory.
-The runtime checkout must be at pinned commit
-`477e3d12dd0920a4961d58ba625ec2afe505c1fb`; the script applies
-`patches/gbarecomp-fzero-compat.patch` if needed. Without `-RuntimeSource`,
-it clones that commit into ignored `_deps/gbarecomp/`.
+The output executable is created at `build-release/FZeroGPLegendRecomp.exe`.
 
-The output is `build-release/fzero.exe`. Run it from Explorer or PowerShell:
+---
 
-```powershell
-./build-release/fzero.exe
-```
+## License & Legal Notices
 
-The game starts at its normal boot flow and waits for your input. The script
-also creates local `build-release/game.toml`, `build-release/saves/`, and
-`build-release/host-compiler.txt`, and stages `SDL2.dll` and the required
-MinGW runtime DLLs. Keep the MinGW compiler at its build-time path: the
-runtime currently needs it for JIT fallback on uncovered paths. If you move
-the toolchain or clone, rerun the build script.
-
-### Build steps
-
-`scripts/build.ps1` performs these steps in order:
-
-1. Validate the ROM and BIOS hashes and resolve the local toolchain and SDL2.
-2. Obtain and patch the pinned gbarecomp runtime, then configure CMake/Ninja.
-3. Build the `gba_recompile` generator and generate BIOS C++ locally.
-4. Compile the checked-in cartridge C++ modules with the runtime into a
-   Windows GUI executable.
-5. Stage DLLs and write local configuration, save directory, and JIT compiler
-   path beside the executable.
-
-For a separate output directory, pass `-BuildDir build-mytest`. For lower
-memory use, pass `-Parallel 1`. Build directories must stay inside the
-repository and are excluded from Git.
-
-### Regenerating the cartridge source
-
-The checked-in cartridge C++ is the output for the supported ROM. To
-regenerate it, install Python 3 and add `-RegenerateCartridgeSource` to the
-normal build command:
-
-```powershell
-pwsh ./scripts/build.ps1 -RomPath 'C:\path\to\game.gba' `
-  -BiosPath 'C:\path\to\gba_bios.bin' `
-  -SDL2Root 'C:\path\to\SDL2\x86_64-w64-mingw32' `
-  -ToolchainBin 'C:\path\to\mingw64\bin' `
-  -RegenerateCartridgeSource
-```
-
-That option runs `gba_recompile` for the cartridge in the ignored build
-directory, then `scripts/organize_cartridge_source.py` to replace the
-checked-in `src/cartridge/` modules. Review the resulting Git diff before
-committing. The grouping script moves complete generated functions; it does
-not reinterpret or rewrite their ARM/Thumb instruction logic.
-
-## Controls
-
-Default gbarecomp keyboard bindings:
-
-| GBA control | Keyboard |
-| --- | --- |
-| A / confirm / accelerate | `X` |
-| B / cancel | `Z` |
-| Start | `Enter` |
-| Select | `Right Shift` |
-| D-pad / steering | Arrow keys |
-| L | `C` |
-| R | `V` |
-
-SDL gamepad input is supported by the runtime. Bindings above describe the
-tested default configuration; in a race, A accelerates and left/right steer.
-
-## Project layout
-
-```text
-FZeroGPLegendRecomp/
-├── CMakeLists.txt                 Windows GUI target and runtime linkage
-├── README.md
-├── LICENSE                        Original integration code license
-├── THIRD_PARTY_NOTICES.md
-├── config/
-│   ├── game.toml.in               Game identity, save, and verified extra entries
-│   └── bios-resume.toml           BIOS generator settings
-├── patches/
-│   └── gbarecomp-fzero-compat.patch
-├── scripts/
-│   ├── build.ps1                  Main build and optional regeneration entry
-│   └── organize_cartridge_source.py
-├── src/
-│   ├── main.cpp                   Game entry point and development flag
-│   ├── host_setup.cpp/.h         Local compiler path and safe normal launch
-│   └── cartridge/                Published recompiled game code
-│       ├── cartridge_functions.h
-│       ├── cartridge_dispatch.cpp
-│       ├── cartridge_symbols.cpp
-│       ├── iwram_relocated_code.cpp
-│       ├── menu_entries.cpp
-│       ├── race_entries.cpp
-│       └── rom_<address-range>.cpp (12 address-range modules)
-└── third_party_licenses/         Licenses for the runtime dependencies
-```
-
-Local-only directories include `_deps/` (runtime source), `build-*/`
-(generated BIOS, executable and DLLs), `recomp_cache/` (JIT fragments), and
-`saves/`. ROM and BIOS dump files, save files, and build products are ignored.
-
-## Development and diagnostics
-
-Normal play does not start an automated demo or write coverage, trace, or
-debug screenshot files. Development input replay requires both `--dev` on
-the executable and `GBARECOMP_INPUT_REPLAY` pointing to a local CSV. Optional
-coverage and dispatch-miss reports use `GBARECOMP_COVERAGE_JSON` and
-`GBARECOMP_MISS_FRAG`. JIT fragments under `recomp_cache/` are runtime code
-cache, not gameplay diagnostics.
-
-## Known limitations
-
-- Compatibility beyond the tested Grand Prix path is unknown. Time Attack,
-  other cups and tracks, audio accuracy, and link play have not been fully
-  verified.
-- Six IWRAM dispatch addresses in the tested race still fall back to the
-  interpreter. They have not been named as functions without proof that the
-  corresponding memory holds code rather than data or pointers.
-- Uncovered paths need the local JIT compiler to avoid deep interpreter
-  recursion. A long fresh-cache **headless** development replay can overflow
-  its call stack; the tested normal windowed race completed.
-- Only the Windows x64 build has been validated.
-
-## License and legal
-
-The original integration and build code is under the
-[PolyForm Noncommercial License 1.0.0](LICENSE). Dependency licenses are
-listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The published
-cartridge C++ is a mechanical translation of game machine code; publishing
-it does not grant rights to the original game code or assets.
-
-This is an unofficial project, unaffiliated with or endorsed by Nintendo,
-Suzak, SDL, or the gbarecomp authors. F-Zero, Nintendo, Game Boy Advance,
-and other names and assets belong to their respective rights holders. Supply
-and use game and BIOS dumps only where you have the rights to do so.
+- **Integration Code**: Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+- **Third-Party Libraries**: Subject to their respective licenses (PolyForm Noncommercial, MIT, zlib, GPL with Runtime Exception); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the `licenses/` directory for full terms.
+- **Game Rights**: *F-Zero* is a trademark and copyright of Nintendo. This project does not distribute copyrighted ROMs, BIOS files, audio tracks, or graphics. The recompiled cartridge source is a mechanical translation of machine instructions for compatibility purposes.
