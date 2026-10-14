@@ -18,10 +18,9 @@ void configure_host_launch(bool no_game_arguments, bool developer_mode) {
         const auto exe_dir = std::filesystem::path(exe_path).parent_path();
         if (no_game_arguments) SetCurrentDirectoryW(exe_dir.c_str());
 
-        // The build writes this local file with the MinGW compiler it used.
-        // A player launching the GUI exe directly still gets the runtime's
-        // required JIT fallback for paths that are not statically compiled.
-        if (GetEnvironmentVariableW(L"GBARECOMP_HEAL_CXX", nullptr, 0) == 0) {
+        // In developer mode, read the compiler path if available.
+        // Normal player runs use the pure interpreter fallback and do not require this.
+        if (developer_mode && GetEnvironmentVariableW(L"GBARECOMP_HEAL_CXX", nullptr, 0) == 0) {
             std::ifstream file(exe_dir / L"host-compiler.txt");
             std::string utf8_path;
             if (file && std::getline(file, utf8_path)) {

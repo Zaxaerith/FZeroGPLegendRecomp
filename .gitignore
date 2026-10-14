@@ -6,6 +6,9 @@ AGENT_PROMPT.md
 *.sav
 *.srm
 /game.toml
+*.cfg
+*.ini
+host-compiler.txt
 /saves/
 /reference/
 
@@ -17,6 +20,7 @@ AGENT_PROMPT.md
 /src/runtime/gbarecomp/
 /src/generated/
 /src/generated_bios/
+/generated_bios/
 *.exe
 *.dll
 *.pdb
@@ -25,10 +29,24 @@ AGENT_PROMPT.md
 *.a
 
 # Local investigation and debug output
-/docs/
+/docs/*
+!/docs/CLEANUP.md
+!/docs/PRE_RELEASE_AUDIT.md
+!/docs/RELEASE_NOTES_v0.1.0-preview.md
+/generated/
+/logs/
+/diagnostics/
+/out/
+/dist/
+/cache/
+/.cache/
+/.deps/
+/third_party/
 /scripts/*
 !/scripts/build.ps1
 !/scripts/organize_cartridge_source.py
+!/scripts/smoke.ps1
+!/scripts/smoke-race.csv
 recomp_coverage_*.json
 recomp_master_misses_*.toml.frag
 *.log
