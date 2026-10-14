@@ -31,6 +31,8 @@ host-compiler.txt
 # Local investigation and debug output
 /docs/*
 !/docs/CLEANUP.md
+!/docs/PRE_RELEASE_AUDIT.md
+!/docs/RELEASE_NOTES_v0.1.0-preview.md
 /generated/
 /logs/
 /diagnostics/

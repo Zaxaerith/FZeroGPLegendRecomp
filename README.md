@@ -4,7 +4,7 @@
 
 A native Windows x64 static recompilation for **F-Zero: GP Legend (USA, Game Code: BFZE)**, built using [GBARecomp](https://github.com/mstan/gbarecomp) and [recomp-ui](https://github.com/mstan/recomp-ui).
 
-> **v0.1.0-preview — Experimental Preview**  
+> **v0.1.0-preview — Experimental Preview**<br>
 > This unofficial, non-commercial fan project is not affiliated with, endorsed by, or associated with Nintendo or Suzak. Players must supply their own legally obtained GBA ROM and retail GBA BIOS. Cartridge C++ source code is a mechanical translation of original game machine code; publishing or building it does not grant rights to the original game code, graphics, audio, or trademarks.
 
 ---

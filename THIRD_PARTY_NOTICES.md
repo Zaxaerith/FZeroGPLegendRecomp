@@ -29,12 +29,32 @@ This preview incorporates and links with several third-party open-source compone
 - **Author**: Mark Gillard
 - **License**: [MIT License](third_party_licenses/tomlplusplus-LICENSE.txt)
 
-## 6. Fonts and Assets
-- **Lato Latin**: SIL Open Font License 1.1 (Lukasz Dziedzic)
-- **Noto Sans Symbols 2**: SIL Open Font License 1.1 (Google Inc.)
-- **OpenMoji**: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+## 6. tinyfiledialogs
+- **Upstream**: http://tinyfiledialogs.sourceforge.net
+- **Author**: Guillaume Vareille
+- **License**: [zlib License](licenses/TinyFileDialogs.txt)
 
-## 7. MinGW-w64 / GCC Runtime
+## 7. stb libraries (stb_image, stb_image_write, stb_truetype)
+- **Upstream**: https://github.com/nothings/stb
+- **Author**: Sean Barrett and contributors
+- **License**: [MIT License / Public Domain](licenses/STB.txt)
+
+## 8. arm-recomp-core
+- **Upstream**: Submodule within GBARecomp
+- **Author**: Matthew Stanley
+- **License**: [MIT License](licenses/ArmRecompCore.txt)
+
+## 9. Mozilla Public License 2.0 (MPL-2.0) Covered Code
+- **Source Files**: `bios_hle.cpp`, `bios_hle.h` (from GBARecomp)
+- **Notice**: In compliance with Section 3.2 of the Mozilla Public License, v. 2.0, the source code form of these files is provided in the `licenses/mpl-source/` directory alongside binary releases. Full license text is available in `licenses/MPL-2.0.txt`.
+
+## 10. Fonts and Image Assets
+- **Lato Latin**: SIL Open Font License 1.1 (Copyright © 2010-2015 by tyPoland Lukasz Dziedzic)
+- **Noto Sans Symbols 2**: SIL Open Font License 1.1 (Copyright © The Noto Project Authors)
+- **OpenMoji**: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0, OpenMoji Project)
+- **Country Flags**: Derived from Noto Color Emoji (SIL Open Font License 1.1)
+
+## 11. MinGW-w64 / GCC Runtime
 - Runtime libraries (`libgcc_s_seh-1.dll`, `libstdc++-6.dll`, `libwinpthread-1.dll`) are distributed under the GNU General Public License version 3 with GCC Runtime Library Exception.
 
 ---

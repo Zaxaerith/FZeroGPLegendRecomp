@@ -4,7 +4,7 @@
 
 基于 [GBARecomp](https://github.com/mstan/gbarecomp) 与 [recomp-ui](https://github.com/mstan/recomp-ui) 构建的 **《F-Zero: GP Legend》（美版，游戏代码：BFZE）** Windows x64 原生静态重编译预览版。
 
-> **v0.1.0-preview — 实验性技术预览**  
+> **v0.1.0-preview — 实验性技术预览**<br>
 > 本项目为非商业性质的玩家开源项目，与任天堂（Nintendo）或 Suzak 无任何从属、授权或关联关系。玩家必须自行提供合法提取的 GBA ROM 与官方零售版 GBA BIOS。源码中的转译代码系对游戏机器码的机械转译，发布或构建该代码不代表拥有游戏著作权、商标或美术音频素材的任何权利。
 
 ---
