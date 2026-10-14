@@ -60,5 +60,5 @@ This preview incorporates and links with several third-party open-source compone
 ---
 
 ## Project Integration License
-The handwritten integration code and launcher integration are licensed by Zaxaerith and Antigravity contributors under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+The handwritten integration code and launcher integration are licensed by Zaxaerith under the [PolyForm Noncommercial License 1.0.0](LICENSE) (Copyright (c) 2026 Zaxaerith). Note: The project integration code is strictly PolyForm Noncommercial and is NOT licensed under MIT; MIT terms apply solely to the specific third-party components listed above.
 The compiled cartridge source is a mechanical translation of original game machine code; publishing or redistributing it does not grant rights to the underlying copyrighted game code, graphics, audio, or trademarks owned by Nintendo and Suzak.

@@ -93,6 +93,6 @@ This distribution contains **NO copyrighted game ROMs or BIOS files**. Players m
 
 ## 7. Legal Disclaimer & Copyright Notices
 
-- **Original Integration Code**: Licensed under [PolyForm Noncommercial License 1.0.0](LICENSE).
+- **Original Integration Code**: Licensed under [PolyForm Noncommercial License 1.0.0](LICENSE) (Copyright (c) 2026 Zaxaerith). Note: The original integration code is strictly PolyForm Noncommercial and is NOT licensed under MIT.
 - **Third-Party Libraries**: GBARecomp (PolyForm Noncommercial 1.0.0), recomp-ui (MIT), Dear ImGui (MIT), SDL2 (zlib), toml++ (MIT), tinyfiledialogs (zlib), stb (MIT/Public Domain), OFL/CC fonts, GCC Runtime Exception. See `THIRD_PARTY_NOTICES.md` for complete text.
 - **Commercial Game Rights**: *F-Zero* is a trademark and copyright of Nintendo and Suzak. This project does not distribute game ROMs, BIOS dumps, audio streams, or graphic assets. Recompiled C++ source code is a mechanical instruction translation; neither its compilation nor its distribution implies authorization or endorsement by Nintendo.

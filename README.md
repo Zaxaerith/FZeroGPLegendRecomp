@@ -136,6 +136,6 @@ The output executable is created at `build-release/FZeroGPLegendRecomp.exe`.
 
 ## License & Legal Notices
 
-- **Integration Code**: Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+- **Integration Code**: Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE) (Copyright (c) 2026 Zaxaerith).
 - **Third-Party Libraries**: Subject to their respective licenses (PolyForm Noncommercial, MIT, zlib, GPL with Runtime Exception); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the `licenses/` directory for full terms.
 - **Game Rights**: *F-Zero* is a trademark and copyright of Nintendo. This project does not distribute copyrighted ROMs, BIOS files, audio tracks, or graphics. The recompiled cartridge source is a mechanical translation of machine instructions for compatibility purposes.

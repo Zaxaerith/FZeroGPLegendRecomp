@@ -118,6 +118,6 @@ pwsh ./scripts/build.ps1 -Parallel 4
 
 ## 许可证与法律声明
 
-- **本集成工程代码**：依据 [PolyForm Noncommercial License 1.0.0](LICENSE) 授权。
+- **本集成工程代码**：依据 [PolyForm Noncommercial License 1.0.0](LICENSE)（Copyright (c) 2026 Zaxaerith）授权。
 - **第三方组件**：各自遵循独立开源协议（PolyForm Noncommercial、MIT、zlib 等），详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 及 `licenses/` 目录。
 - **游戏版权**：《F-Zero》是任天堂（Nintendo）的注册商标与著作权作品。本项目不包含任何受版权保护的游戏镜像文件。转译源码仅为技术兼容目的所作的机械指令转换。

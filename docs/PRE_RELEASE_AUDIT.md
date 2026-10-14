@@ -80,7 +80,8 @@ In this release:
 ### 4.1. Three-Tier Licensing Separation
 1. **Original Tooling & Integration**:
    - `src/main.cpp`, `src/host_setup.cpp`, `src/game_launcher_boot.cpp`, `CMakeLists.txt`, `scripts/build.ps1`.
-   - Governed by [PolyForm Noncommercial License 1.0.0](LICENSE).
+   - Governed strictly by [PolyForm Noncommercial License 1.0.0](LICENSE) (Copyright (c) 2026 Zaxaerith).
+   - **Important Clarification**: The original integration code is **NOT licensed under MIT**. MIT terms apply solely to specific third-party components (e.g. recomp-ui, Dear ImGui, toml++).
 2. **Third-Party Libraries**:
    - GBARecomp, recomp-ui, Dear ImGui, SDL2, toml++, tinyfiledialogs, stb, fonts, and GCC runtime libraries.
    - Fully documented in `THIRD_PARTY_NOTICES.md` and `licenses/`.
@@ -88,7 +89,7 @@ In this release:
    - *F-Zero: GP Legend* is the copyrighted work of Nintendo and Suzak.
    - The compiled cartridge units (`src/cartridge/`) represent a mechanical translation of original ARM/Thumb instructions.
    - Packaging excludes ROM and BIOS binary dumps, but includes compiled derived machine logic.
-   - **RED LINE**: This project does not claim that the absence of `.gba` ROM dumps makes the binary free of game copyright, nor does it claim authorization by Nintendo.
+   - **RED LINE**: This project does not claim that the absence of `.gba` ROM dumps makes the binary free of game copyright, nor does it claim authorization by Nintendo. Neither PolyForm Noncommercial nor any open-source license can license or grant rights to Nintendo's underlying game logic.
 
 ---
 
