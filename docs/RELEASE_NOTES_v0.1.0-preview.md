@@ -76,8 +76,8 @@ This distribution contains **NO copyrighted game ROMs or BIOS files**. Players m
 ## 6. Package Verification (v0.1.0-preview)
 
 - **Archive File**: `FZeroGPLegendRecomp-windows-x64-v0.1.0-preview.zip`
-- **File Size**: `11,529,480` bytes (approx. 11.0 MB)
-- **SHA-256 Checksum**: `af3651a663a657c17543ff904dd8de9142e22b5c17795978db8b6cb768372ba3`
+- **File Size**: `11,279,191` bytes (approx. 10.76 MiB)
+- **SHA-256 Checksum**: `fca2b81a850811eae66fcb4e3a7a76b09d3e80e14f85279e29bc48d67f318d6b`
 - **Contents**:
   - `FZeroGPLegendRecomp.exe` (SHA-256: `4559154fb5e855d647957435c64e21a886bd3e3cd691b90d2a946f51eb1ec2bd`)
   - `SDL2.dll`, `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, `libwinpthread-1.dll`

@@ -65,9 +65,9 @@ In this release:
   - SHA-256: `4559154fb5e855d647957435c64e21a886bd3e3cd691b90d2a946f51eb1ec2bd`
   - Subsystem: Windows GUI (`-mwindows`, no console window prompt)
   - Stack Size: 64 MiB (`-Wl,--stack,67108864`)
-- **Release Archive (RC2)**: `dist/FZeroGPLegendRecomp-windows-x64-v0.1.0-preview.zip`
-  - Byte Size: `11,529,480` bytes (approx. 11.0 MB)
-  - SHA-256: `af3651a663a657c17543ff904dd8de9142e22b5c17795978db8b6cb768372ba3`
+- **Release Archive**: `dist/FZeroGPLegendRecomp-windows-x64-v0.1.0-preview.zip`
+  - Byte Size: `11,279,191` bytes (approx. 10.76 MiB)
+  - SHA-256: `fca2b81a850811eae66fcb4e3a7a76b09d3e80e14f85279e29bc48d67f318d6b`
   - Verification: Clean sandbox decompression and standalone execution passed.
 - **Comparison to RC1**:
   - RC1 SHA-256: `e06fef2bf37b80ec819460f00bdcc5be055edb19dc112f9bb19a7f8899326a66` (`11,527,321` bytes).
